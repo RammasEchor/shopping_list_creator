@@ -2,7 +2,7 @@ from fractions import Fraction
 
 from openpyxl import *
 
-wb = load_workbook(filename="C:\\Users\\NietoL\\Downloads\\Menu.xlsx")
+wb = load_workbook(filename="/home/rammas/Downloads/Menu.xlsx")
 
 where_ingredients = {}
 
@@ -53,8 +53,18 @@ sheet_menu = wb['1_Menú']
 
 shopping_list = {}
 
-for menu_col in range(67, 74): # 'C' to 'I'
-    for menu_row in range(18, 23):
+print("Select one Menu:")
+print("(1) Top (Green)")
+print("(2) Bottom (Magenta)")
+menu_selected = input()
+menu = int(menu_selected)
+if( menu < 1 or menu > 2 ):
+    print(f"Out of range: {menu}")
+    exit
+
+menu_row_range = range(3,8) if menu == 1 else range(18,23)
+for menu_col in range(66, 73): # 'B' to 'H'
+    for menu_row in range(3, 8):
         value = sheet_menu[f"{chr(menu_col)}{menu_row}"].value
 
         if not value:
