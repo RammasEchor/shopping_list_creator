@@ -62,9 +62,9 @@ if( menu < 1 or menu > 2 ):
     print(f"Out of range: {menu}")
     exit
 
-menu_row_range = range(3,8) if menu == 1 else range(18,23)
+menu_row_range = range(3,8) if menu == 1 else range(11,16)
 for menu_col in range(66, 73): # 'B' to 'H'
-    for menu_row in range(3, 8):
+    for menu_row in menu_row_range:
         value = sheet_menu[f"{chr(menu_col)}{menu_row}"].value
 
         if not value:
