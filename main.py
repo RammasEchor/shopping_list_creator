@@ -2,7 +2,7 @@ from fractions import Fraction
 
 from openpyxl import *
 
-# from createListsInKeep import createListsInKeep
+from createListsInKeep import createListsInKeep
 
 wb = load_workbook(filename="/home/rammas/Downloads/Menu.xlsx")
 
@@ -56,13 +56,14 @@ shopping_list = {}
 print("Select one Menu:")
 print("(1) Top (Green)")
 print("(2) Bottom (Magenta)")
+print("(3) Both")
 menu_selected = input()
 menu = int(menu_selected)
-if menu < 1 or menu > 2:
+if menu < 1 or menu > 3:
     print(f"Out of range: {menu}")
     exit
 
-menu_row_range = range(3, 8) if menu == 1 else range(11, 16)
+menu_row_range = range(3, 8) if (menu == 1 or menu == 3) else range(11, 16)
 for menu_col in range(66, 73):  # 'B' to 'H'
     for menu_row in menu_row_range:
         value = sheet_menu[f"{chr(menu_col)}{menu_row}"].value
@@ -98,6 +99,45 @@ for menu_col in range(66, 73):  # 'B' to 'H'
                     shopping_list[ingrediente["producto"]][ingrediente["unidad"]] = (
                         ingrediente["cantidad"]
                     )
+
+if menu == 3:
+    menu_row_range = range(11, 16)
+    for menu_col in range(66, 73):  # 'B' to 'H'
+        for menu_row in menu_row_range:
+            value = sheet_menu[f"{chr(menu_col)}{menu_row}"].value
+
+            if not value:
+                continue
+
+            ingredientes = master_ingredients[value]
+            for ingrediente in ingredientes:
+                if not ingrediente["producto"] in shopping_list:
+                    shopping_list[ingrediente["producto"]] = {
+                        ingrediente["unidad"]: ingrediente["cantidad"]
+                    }
+
+                else:
+                    if ingrediente["unidad"] in shopping_list[ingrediente["producto"]]:
+                        cantidad = str(ingrediente["cantidad"])
+                        cantidad = float(sum(Fraction(s) for s in cantidad.split()))
+                        cantidad_anterior = str(
+                            shopping_list[ingrediente["producto"]][
+                                ingrediente["unidad"]
+                            ]
+                        )
+                        cantidad_anterior = float(
+                            sum(Fraction(s) for s in cantidad_anterior.split())
+                        )
+                        cantidad += cantidad_anterior
+
+                        shopping_list[ingrediente["producto"]][
+                            ingrediente["unidad"]
+                        ] = cantidad
+
+                    else:
+                        shopping_list[ingrediente["producto"]][
+                            ingrediente["unidad"]
+                        ] = ingrediente["cantidad"]
 
 shopping_list_doc = Workbook()
 lista_compras_sheet = shopping_list_doc.create_sheet("Lista de Compras")
@@ -147,13 +187,13 @@ for key, value in shopping_list.items():
 lista_compras_sheet[f"{chr(col + 1)}{row_carniceria}"] = f"Patas de Pollo (1 kg)"
 carniceria["Patas de Pollo"] = "Patas de Pollo (1 kg)"
 row_carniceria += 1
-# createListsInKeep(
-#     {
-#         "Abastos": abastos,
-#         "Carniceria": carniceria,
-#         "Super": super,
-#         "Plaza del Valle": plazaDelValle,
-#     }
-# )
+createListsInKeep(
+    {
+        "Abastos": abastos,
+        "Carniceria": carniceria,
+        "Super": super,
+        "Plaza del Valle": plazaDelValle,
+    }
+)
 
 shopping_list_doc.save("/home/rammas/Downloads/shopping_list.xlsx")
